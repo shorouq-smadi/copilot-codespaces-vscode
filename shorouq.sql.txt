@@ -1,0 +1,41 @@
+SELECT
+ refresh_date AS Day,
+ term AS Top_Term,
+ rank
+FROM `bigquery-public-data.google_trends.top_terms`
+WHERE
+ rank = 1
+ AND refresh_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) -- Changed to 1 MONTH
+GROUP BY Day, Top_Term, rank
+ORDER BY Day ORDER BY Day DESC3
+SELECT
+ refresh_date AS Day,
+ term AS Top_Term,
+ rank
+FROM `bigquery-public-data.google_trends.top_terms`
+WHERE
+ rank BETWEEN 1 AND 3 -- Changed to include ranks 1, 2, and 3
+ AND refresh_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 WEEK)
+GROUP BY Day, Top_Term, rank
+ORDER BY Day DESC
+
+SELECT
+    t.refresh_date AS Day,
+    t.term AS Top_Term,
+    t.rank,
+    tr.region_code
+  FROM
+    `bigquery-public-data.google_trends.top_terms` AS t
+  INNER JOIN
+    `bigquery-public-data.google_trends.top_terms_by_region` AS tr ON t.term = tr.term AND t.refresh_date = tr.refresh_date
+  WHERE t.rank = 1
+   AND t.refresh_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 WEEK)
+ORDER BY t.refresh_date DESC
+SELECT
+ DATE_TRUNC(refresh_date, WEEK) AS Week, -- Truncates the date to the beginning of the week
+ term AS Top_Term,
+ MIN(rank) as Min_Rank -- Find the best rank a term got within the week
+FROM `bigquery-public-data.google_trends.top_terms`
+WHERE refresh_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 WEEK)
+GROUP BY Week, Top_Term
+ORDER BY Week DESC, Min_Rank ASC -- Order by week and then best rank
